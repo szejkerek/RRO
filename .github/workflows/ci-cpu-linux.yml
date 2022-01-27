@@ -25,8 +25,16 @@ jobs:
             cxx: "g++-10",
           }
         - {
-            cc: "clang",
-            cxx: "clang++",
+            cc: "clang-10",
+            cxx: "clang++-10",
+          }
+        - {
+            cc: "clang-11",
+            cxx: "clang++-11",
+          }
+        - {
+            cc: "clang-12",
+            cxx: "clang++-12",
           }
 
       fail-fast: false
