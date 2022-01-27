@@ -12,8 +12,6 @@ on:
 
 jobs:
   build:
-    name: Build and test
-
     strategy:
       matrix:
         config: [ '', '-DPBRT_DBG_LOGGING=True', '-DPBRT_FLOAT_AS_DOUBLE=True' ]
@@ -40,6 +38,7 @@ jobs:
       fail-fast: false
 
     runs-on: ubuntu-20.04
+    name: Build and test ${{ matrix.compilers.name }} - ${{ matrix.config }}
 
     steps:
     - name: Checkout pbrt
@@ -58,6 +57,9 @@ jobs:
 
     - name: Install OpenEXR
       run: sudo apt-get -y install libopenexr-dev
+
+    - name Install compilers
+      run: ${{ matrix.compilers.install }}
 
     - name: Configure
       run: |
