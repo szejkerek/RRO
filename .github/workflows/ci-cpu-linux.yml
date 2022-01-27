@@ -52,7 +52,7 @@ jobs:
     - name: Install OpenEXR
       run: sudo apt-get -y install libopenexr-dev
 
-    - name Install compilers
+    - name: Install compilers
       run: sudo apt-get -y install ${{ matrix.compilers.cc }} ${{ matrix.compilers.cxx }}
 
     - name: Configure
