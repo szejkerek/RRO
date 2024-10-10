@@ -1,6 +1,32 @@
 pbrt, Version 4 (Early Release)
 ===============================
 
+Building the code
+-----------------
+
+As before, pbrt uses git submodules for a number of third-party libraries
+that it depends on.  Therefore, be sure to use the `--recursive` flag when
+cloning the repository:
+```bash
+$ git clone --recursive https://github.com/szejkerek/RRO
+```
+
+If you accidentally clone pbrt without using ``--recursive`` (or to update
+the pbrt source tree after a new submodule has been added, run the
+following command to also fetch the dependencies:
+```bash
+$ git submodule update --init --recursive
+```
+
+pbrt uses [cmake](http://www.cmake.org/) for its build system.  Note that a
+release build is the default; provide `-DCMAKE_BUILD_TYPE=Debug` to cmake
+for a debug build.
+
+pbrt should build on any system that has C++ compiler with support for
+C++17; we have verified that it builds on Ubuntu 20.04, MacOS 10.14, and
+Windows 10.  We welcome PRs that fix any issues that prevent it from
+building on other systems.
+
 [<img src="https://github.com/mmp/pbrt-v4/workflows/cpu-linux-build-and-test/badge.svg">](https://github.com/mmp/pbrt-v4/actions?query=workflow%3Acpu-linux-build-and-test)
 [<img src="https://github.com/mmp/pbrt-v4/workflows/cpu-macos-build-and-test/badge.svg">](https://github.com/mmp/pbrt-v4/actions?query=workflow%3Acpu-macos-build-and-test)
 [<img src="https://github.com/mmp/pbrt-v4/workflows/cpu-windows-build-and-test/badge.svg">](https://github.com/mmp/pbrt-v4/actions?query=workflow%3Acpu-windows-build-and-test)
@@ -101,32 +127,6 @@ you have an instance of *tev* running, you can run pbrt like:
 $ pbrt --display-server localhost:14158 scene.pbrt
 ```
 In that case, the image will be progressively displayed as it renders.
-
-Building the code
------------------
-
-As before, pbrt uses git submodules for a number of third-party libraries
-that it depends on.  Therefore, be sure to use the `--recursive` flag when
-cloning the repository:
-```bash
-$ git clone --recursive https://github.com/mmp/pbrt-v4.git
-```
-
-If you accidentally clone pbrt without using ``--recursive`` (or to update
-the pbrt source tree after a new submodule has been added, run the
-following command to also fetch the dependencies:
-```bash
-$ git submodule update --init --recursive
-```
-
-pbrt uses [cmake](http://www.cmake.org/) for its build system.  Note that a
-release build is the default; provide `-DCMAKE_BUILD_TYPE=Debug` to cmake
-for a debug build.
-
-pbrt should build on any system that has C++ compiler with support for
-C++17; we have verified that it builds on Ubuntu 20.04, MacOS 10.14, and
-Windows 10.  We welcome PRs that fix any issues that prevent it from
-building on other systems.
 
 Bug Reports and PRs
 -------------------
