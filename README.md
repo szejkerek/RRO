@@ -8,14 +8,14 @@ As before, pbrt uses git submodules for a number of third-party libraries
 that it depends on.  Therefore, be sure to use the `--recursive` flag when
 cloning the repository:
 ```bash
-$ git clone --recursive https://github.com/szejkerek/RRO
+git clone --recursive https://github.com/szejkerek/RRO
 ```
 
 If you accidentally clone pbrt without using ``--recursive`` (or to update
 the pbrt source tree after a new submodule has been added, run the
 following command to also fetch the dependencies:
 ```bash
-$ git submodule update --init --recursive
+git submodule update --init --recursive
 ```
 
 pbrt uses [cmake](http://www.cmake.org/) for its build system.  Note that a
