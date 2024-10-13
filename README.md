@@ -18,6 +18,14 @@ following command to also fetch the dependencies:
 git submodule update --init --recursive
 ```
 
+```bash
+cmake .. -DPBRT_GPU=ON
+```
+
+```bash
+cmake --build . -j8
+```
+
 pbrt uses [cmake](http://www.cmake.org/) for its build system.  Note that a
 release build is the default; provide `-DCMAKE_BUILD_TYPE=Debug` to cmake
 for a debug build.
