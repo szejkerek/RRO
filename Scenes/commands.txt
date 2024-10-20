@@ -1,0 +1,3 @@
+..\build\Release\pbrt.exe --stats --spp 256 --display-server localhost:14158  .\examples\yeahright\yeahrightNew.pbrt  --outfile yeahRight.png
+
+..\build\Release\pbrt.exe --upgrade  .\examples\yeahright\yeahright.pbrt > .\examples\yeahright\yeahrightNew.pbrt
