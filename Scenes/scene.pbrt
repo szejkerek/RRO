@@ -8,62 +8,13 @@ PixelFilter "triangle"
     "float yradius" [ 1 ]
 Film "rgb"
     "string filename" [ "scene.png" ]
-    "integer yresolution" [ 320 ]
-    "integer xresolution" [ 240 ]
+    "integer yresolution" [ 256 ]
+    "integer xresolution" [ 256 ]
+Camera "perspective"
+    "float fov" [ 19.5 ]
 
-Camera "orthographic" 
-    "float screenwindow" [-1 1 -1 1] 
 
 WorldBegin
-
- LightSource "spot"
- "point3 from" [0 1 2]
- "point3 to" [0.3 1 -3]
- "float coneangle" [20]
- "float conedeltaangle" [2]
- "float power" 6
-
-AttributeBegin
-    Translate -0.5 1 0
-    Rotate 90 1 1 0
-    Material "dielectric"
-    Shape "loopsubdiv"
-        "integer levels" 3
-        "integer indices" [ 0 1 2 0 3 1 ]
-        " point3 P " [-.5 -.2 .1
-        .5 .2 .5
-        .5 -.5 .5 -.5 -.5 -.1]
-AttributeEnd
-
-AttributeBegin
-    Translate 0.5 1.4 0
-    Rotate 90 1 1 0
-    Material "diffuse"
-        "rgb reflectance" [ 1 0 0 ]
-
-    Shape "sphere"
-        "float radius" [.2]
-AttributeEnd
-
-AttributeBegin
-    Translate 0.5 1 0
-    Rotate 90 1 1 0
-    Material "diffuse"
-        "rgb reflectance" [ 0 1 0 ]
-
-    Shape "sphere"
-        "float radius" [.2]
-AttributeEnd
-
-AttributeBegin
-    Translate 0.5 0.6 0
-    Rotate 90 1 1 0
-    Material "diffuse"
-        "rgb reflectance" [ 0 0 1 ]
-
-    Shape "sphere"
-        "float radius" [.2]
-AttributeEnd
 
 MakeNamedMaterial "LeftWall"
     "string type" [ "diffuse" ]
@@ -90,6 +41,7 @@ MakeNamedMaterial "Light"
     "string type" [ "diffuse" ]
     "rgb reflectance" [ 0 0 0 ]
 NamedMaterial "Floor"
+
 Shape "trianglemesh"
     "point2 uv" [ 0 0 1 0 1 1 0 1 
         ]
@@ -141,4 +93,99 @@ AttributeBegin
                      -1 1.86006e-7 -8.74228e-8 -1 1.86006e-7 ]
         "point3 P" [ -0.24 1.98 -0.22 0.23 1.98 -0.22 0.23 1.98 0.16 -0.24 1.98 0.16 ]
         "integer indices" [ 0 1 2 0 2 3 ]
+AttributeEnd
+
+LightSource "spot"
+    "point3 from" [0 1 2]
+    "point3 to" [0.3 1 -3]
+    "float coneangle" [70]
+    "float conedeltaangle" [2]
+    "float power" 5
+
+
+Texture "wood-tex" "spectrum" "imagemap" "string filename" "texture/buildingblock.png"
+MakeNamedMaterial "mat1" "string type" "diffuse" "texture reflectance" "wood-tex"
+
+
+Texture "checker-tex" "spectrum" "checkerboard" "float uscale" [10] "float vscale" [10] 
+MakeNamedMaterial "mat2" "string type" "diffuse" "texture reflectance" "checker-tex"
+
+Texture "marble-tex" "spectrum" "imagemap" "string filename" "texture/grid.png"
+MakeNamedMaterial "mat3" "string type" "diffuse" "texture reflectance" "marble-tex"
+
+Texture "lines-tex" "spectrum" "imagemap" "string filename" "texture/custom.jpg"
+MakeNamedMaterial "mat4" "string type" "diffuse" "texture reflectance" "lines-tex"
+
+MakeNamedMaterial "mat5" "string type" "diffuse" "texture reflectance" "wood-tex"
+
+Texture "brick-tex" "spectrum" "imagemap" "string filename" "texture/lines.png"
+MakeNamedMaterial "mat6" "string type" "diffuse" "texture reflectance" "brick-tex"
+
+MakeNamedMaterial "mat7" "string type" "diffuse" "texture reflectance" "wood-tex"
+
+MakeNamedMaterial "mat8" "string type" "dielectric" "float eta" 5.2 
+MakeNamedMaterial "mat9" "string type" "dielectric" "float eta" 5.3 
+
+
+AttributeBegin
+    NamedMaterial "mat1"
+    Translate -0.65 1.49 0.1  
+    Scale 0.0975 0.0975 0.0975
+    Shape "plymesh" "string filename" ["custom.ply"]
+AttributeEnd
+
+AttributeBegin
+    NamedMaterial "mat2"
+    Translate -0.13 1.49 0.1  
+    Scale 0.0975 0.0975 0.0975
+    Shape "plymesh" "string filename" ["custom.ply"]
+AttributeEnd
+
+AttributeBegin
+    NamedMaterial "mat3"
+    Translate 0.39 1.49 0.1  
+    Scale 0.0975 0.0975 0.0975
+    Shape "plymesh" "string filename" ["custom.ply"]
+AttributeEnd
+
+AttributeBegin
+    NamedMaterial "mat4"
+    Translate -0.65 1.07 0.2  
+    Scale 0.0975 0.0975 0.0975
+    Shape "plymesh" "string filename" ["custom.ply"]
+AttributeEnd
+
+AttributeBegin
+    NamedMaterial "mat5"
+    Translate -0.13 1.07 0.2  
+    Scale 0.0975 0.0975 0.0975
+    Shape "plymesh" "string filename" ["custom.ply"]
+AttributeEnd
+
+AttributeBegin
+    NamedMaterial "mat6"
+    Translate 0.39 1.07 0.2  
+    Scale 0.0975 0.0975 0.0975
+    Shape "plymesh" "string filename" ["custom.ply"]
+AttributeEnd
+
+AttributeBegin
+    NamedMaterial "mat7"
+    Translate -0.65 0.65 0.3  
+    Scale 0.0975 0.0975 0.0975
+    Shape "plymesh" "string filename" ["custom.ply"]
+AttributeEnd
+
+AttributeBegin
+    NamedMaterial "mat8"
+    Translate -0.13 0.65 0.6  
+    Scale 0.0975 0.0975 0.0975
+    Shape "plymesh" "string filename" ["custom.ply"]
+AttributeEnd
+
+AttributeBegin
+    NamedMaterial "mat9"
+    Translate 0.39 0.65 0.6  
+    Scale 0.0975 0.0975 0.0975
+    Shape "plymesh" "string filename" ["custom.ply"]
 AttributeEnd
