@@ -236,3 +236,108 @@ is straightforward:
 ```bash
 $ imgtool denoise-optix noisy.exr --outfile denoised.exr
 ```
+
+## Code Highlights
+
+### TaggedPointer: Vtable-Free Polymorphic Dispatch for CPU and GPU
+
+```cpp
+// src/pbrt/util/taggedptr.h
+
+template <typename... Ts>
+class TaggedPointer {
+  public:
+    using Types = TypePack<Ts...>;
+
+    template <typename T>
+    PBRT_CPU_GPU TaggedPointer(T *ptr) {
+        uint64_t iptr = reinterpret_cast<uint64_t>(ptr);
+        DCHECK_EQ(iptr & ptrMask, iptr);
+        constexpr unsigned int type = TypeIndex<T>();
+        bits = iptr | ((uint64_t)type << tagShift);
+    }
+
+    template <typename T>
+    PBRT_CPU_GPU static constexpr unsigned int TypeIndex() {
+        using Tp = typename std::remove_cv_t<T>;
+        if constexpr (std::is_same_v<Tp, std::nullptr_t>)
+            return 0;
+        else
+            return 1 + pbrt::IndexOf<Tp, Types>::count;
+    }
+
+    PBRT_CPU_GPU
+    unsigned int Tag() const { return ((bits & tagMask) >> tagShift); }
+
+    template <typename T>
+    PBRT_CPU_GPU bool Is() const { return Tag() == TypeIndex<T>(); }
+
+    template <typename F>
+    PBRT_CPU_GPU decltype(auto) Dispatch(F &&func) {
+        DCHECK(ptr());
+        using R = typename detail::ReturnType<F, Ts...>::type;
+        return detail::Dispatch<F, R, Ts...>(func, ptr(), Tag() - 1);
+    }
+
+  private:
+    static constexpr int tagShift = 57;
+    static constexpr uint64_t tagMask = ~((1ull << tagShift) - 1);
+    static constexpr uint64_t ptrMask = (1ull << tagShift) - 1;
+    uint64_t bits = 0;
+};
+```
+
+`TaggedPointer<Ts...>` stores a type-discriminant tag in the upper 7 bits of a 64-bit pointer (exploiting the fact that x86-64 canonical addresses only use 57 bits). This eliminates vtable overhead entirely: polymorphic dispatch resolves through a compile-time `switch` on an integer tag rather than an indirect function call through a pointer. Because GPU code cannot use C++ virtual dispatch, this single design choice allows the entire material, BxDF, and light hierarchy to share one implementation that compiles to both `__device__` and host code via the `PBRT_CPU_GPU` macro.
+
+### Progressive Wave Rendering with Exponential Growth
+
+```cpp
+// src/pbrt/cpu/integrators.cpp
+
+// Render image in waves
+while (waveStart < spp) {
+    // Render current wave's image tiles in parallel
+    ParallelFor2D(pixelBounds, [&](Bounds2i tileBounds) {
+        ScratchBuffer &scratchBuffer = scratchBuffers.Get();
+        Sampler &sampler = samplers.Get();
+        for (Point2i pPixel : tileBounds) {
+            StatsReportPixelStart(pPixel);
+            threadPixel = pPixel;
+            for (int sampleIndex = waveStart; sampleIndex < waveEnd; ++sampleIndex) {
+                threadSampleIndex = sampleIndex;
+                sampler.StartPixelSample(pPixel, sampleIndex);
+                EvaluatePixelSample(pPixel, sampleIndex, sampler, scratchBuffer);
+                scratchBuffer.Reset();
+            }
+            StatsReportPixelEnd(pPixel);
+        }
+        progress.Update((waveEnd - waveStart) * tileBounds.Area());
+    });
+
+    // Update start and end wave
+    waveStart = waveEnd;
+    waveEnd = std::min(spp, waveEnd + nextWaveSize);
+    if (!referenceImage)
+        nextWaveSize = std::min(2 * nextWaveSize, 64);
+    if (waveStart == spp)
+        progress.Done();
+    // ...write partial image...
+}
+```
+
+Rather than rendering all samples per pixel in a single pass, the integrator splits work into "waves" of increasing size (1, 2, 4, 8, … up to 64 samples per wave). Early waves complete quickly and produce a low-quality preview that is immediately sent to the display server (`tev`). Later waves grow exponentially to amortize per-wave overhead once early feedback is no longer as valuable. The cap at 64 balances responsiveness against the fixed cost of dispatching a full parallel tile job. Thread-local `ScratchBuffer` and `Sampler` objects eliminate per-sample allocation and prevent data races without locks.
+
+### Multiple Importance Sampling — Power Heuristic with Overflow Guard
+
+```cpp
+// src/pbrt/util/sampling.h
+
+PBRT_CPU_GPU inline Float PowerHeuristic(int nf, Float fPdf, int ng, Float gPdf) {
+    Float f = nf * fPdf, g = ng * gPdf;
+    if (IsInf(Sqr(f)))
+        return 1;
+    return Sqr(f) / (Sqr(f) + Sqr(g));
+}
+```
+
+Multiple Importance Sampling (MIS) combines estimates from two sampling strategies (e.g., BSDF sampling and light sampling) to reduce variance. The power heuristic squares both weighted PDFs before dividing, which provably minimizes variance relative to the balance heuristic when one strategy strongly dominates. The `IsInf(Sqr(f))` guard handles the edge case where `f` is so large that squaring it overflows to infinity — without the guard, the division would produce NaN rather than the mathematically correct limit of 1.

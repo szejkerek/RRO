@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l /c/00_Projects/Github/RRO/src/pbrt/*.h /c/00_Projects/Github/RRO/src/pbrt/*.cpp)",
+      "Bash(ls -lhS /c/00_Projects/Github/RRO/src/pbrt/*.cpp)"
+    ]
+  }
+}
